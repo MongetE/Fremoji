@@ -1,4 +1,5 @@
-import sys
+import json
+import time
 import nltk
 import matplotlib.pyplot as plt
 import numpy as np
@@ -31,7 +32,7 @@ def prepare_input_output_data(tokenizer, dataframe, max_words, len_sequence):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, 
                                                         random_state=42)
 
-    return X_train, X_test, y_train, y_test
+    return X, y, X_train, X_test, y_train, y_test
 
 
 def get_word_embedding(embedding_path, tokens, max_words, embedding_dimension):
@@ -68,13 +69,12 @@ def build_model(max_words, embedding_dimension, max_sequence,
     model.add(Embedding(max_words, embedding_dimension, input_length=max_sequence))
     model.add(Flatten())
     model.add(Dense(16, activation='relu'))
-    model.add(Dense(16, activation='relu'))
     model.add(Dense(25, activation='sigmoid'))
 
     # Add word embedding to Embedding layers
     # They are not updated to avoid messing with what is already learnt
     # model.layers[0].set_weights([embedding_matrix])
-    # model.layers[0].trainable = False 
+    # model.layers[0].trainable = False
 
     model.compile(optimizer='rmsprop', loss='categorical_crossentropy', 
                 metrics=['acc'])
@@ -94,44 +94,63 @@ if __name__ == "__main__":
     MAX_NB_WORDS = round(len(set(tokens))/2)
     # Tweet can't be much longer than 50 tokens
     MAX_SEQUENCE_LENGTH = 50
-    EMBEDDING_DIMENSION = 32
+    EMBEDDING_DIMENSION = 300
 
     tokenizer = Tokenizer(num_words=MAX_NB_WORDS)
     tokenizer.fit_on_texts(tweets_concatenated)
 
-    X_train, X_test, y_train, y_test = prepare_input_output_data(tokenizer, 
+    X, y, X_train, X_test, y_train, y_test = prepare_input_output_data(tokenizer, 
                                                                 tweet_dataframe, 
                                                                 MAX_NB_WORDS, 
                                                                 MAX_SEQUENCE_LENGTH)
     print("Data is ready")
+
+    # Pre-trained word embedding only slow the model and do not bring 
+    # significative gain 
+
     # print("Building embedding matrix, this might take a while")
+    # start = time.time()
     # embedding_matrix = get_word_embedding(embedding_path, tokens, 
     #                                       MAX_NB_WORDS, EMBEDDING_DIMENSION)
-    # print("Embedding matrix is built")
+    # end = time.time() - start
+    # print(f"Embedding matrix is built (task completed in {end:.2f}s)")
+
     model = build_model(MAX_NB_WORDS, EMBEDDING_DIMENSION, 
                         MAX_SEQUENCE_LENGTH)
     print("Model is ready to be trained")
 
-    history = model.fit(X_train, y_train, epochs=3, batch_size=64, 
-              validation_data=(X_test, y_test))
+    # Uncomment to evaluate
+    # history = model.fit(X_train, y_train, epochs=5, batch_size=64, 
+    #           validation_data=(X_test, y_test))
+    
 
-    acc = history.history['acc']
-    val_acc = history.history['val_acc']
-    loss = history.history['loss']
-    val_loss = history.history['val_loss']
+    # acc = history.history['acc']
+    # val_acc = history.history['val_acc']
+    # loss = history.history['loss']
+    # val_loss = history.history['val_loss']
 
-    epochs = range(1, len(acc) + 1)
+    # epochs = range(1, len(acc) + 1)
 
-    plt.plot(epochs, acc, 'bo', label='Training acc')
-    plt.plot(epochs, val_acc, 'b', label='Validation acc')
-    plt.title('Training and validation accuracy')
-    plt.legend()
+    # plt.plot(epochs, acc, 'bo', label='Training acc')
+    # plt.plot(epochs, val_acc, 'b', label='Validation acc')
+    # plt.title('Training and validation accuracy')
+    # plt.legend()
 
-    plt.figure()
+    # plt.figure()
 
-    plt.plot(epochs, loss, 'bo', label='Training loss')
-    plt.plot(epochs, val_loss, 'b', label='Validation loss')
-    plt.title('Training and validation loss')
-    plt.legend()
+    # plt.plot(epochs, loss, 'bo', label='Training loss')
+    # plt.plot(epochs, val_loss, 'b', label='Validation loss')
+    # plt.title('Training and validation loss')
+    # plt.legend()
 
-    plt.show()
+    # plt.show()
+
+    model.fit(X, y, epochs=3, batch_size=64)
+
+    saved_model = model.to_json()
+    model.save_weights('models/baseline_weights.h5')
+    print('Weights saved to disk')
+
+    with open('models/baseline_model.json', 'w') as model_file:
+        json.dump(saved_model, model_file)
+    print('Model saved to disk')
