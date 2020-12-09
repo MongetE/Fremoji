@@ -20,10 +20,11 @@ def load_data(datapath):
 
     return data_frame
 
-
-def prepare_input_output_data(tokenizer, dataframe, max_words, len_sequence): 
+def prepare_input_output_data(tokenizer, dataframe, max_words, len_sequence):
+    label_tokenizer = Tokenizer()
     X = tokenizer.texts_to_sequences(dataframe['tweet'])
     X = pad_sequences(X, maxlen=MAX_SEQUENCE_LENGTH)
+    
     y = pd.get_dummies(dataframe['emoji'])
 
     print('Shape of data tensor:', X.shape)
@@ -62,6 +63,15 @@ def get_word_embedding(embedding_path, tokens, max_words, embedding_dimension):
     return embedding_matrix
 
 
+def prepare_input(text): 
+    tokenizer = Tokenizer()
+    tokenizer.fit_on_texts(text)
+    X_pred = tokenizer.texts_to_sequences(text)
+    X_pred = pad_sequences(X_pred, maxlen=50)
+
+    return X_pred
+
+
 def build_model(max_words, embedding_dimension, max_sequence, 
                 embedding_matrix=None):
     # Define model architecture 
@@ -76,7 +86,7 @@ def build_model(max_words, embedding_dimension, max_sequence,
     # model.layers[0].set_weights([embedding_matrix])
     # model.layers[0].trainable = False
 
-    model.compile(optimizer='rmsprop', loss='categorical_crossentropy', 
+    model.compile(optimizer='rmsprop', loss='sparse_categorical_crossentropy', 
                 metrics=['acc'])
 
     return model
@@ -145,12 +155,36 @@ if __name__ == "__main__":
 
     # plt.show()
 
-    model.fit(X, y, epochs=3, batch_size=64)
+    # model.fit(X, y, epochs=3, batch_size=64)
 
-    saved_model = model.to_json()
-    model.save_weights('models/baseline_weights.h5')
-    print('Weights saved to disk')
+    # saved_model = model.to_json()
+    # model.save_weights('models/baseline_weights.h5')
+    # print('Weights saved to disk')
 
-    with open('models/baseline_model.json', 'w') as model_file:
-        json.dump(saved_model, model_file)
-    print('Model saved to disk')
+    # with open('models/baseline_model.json', 'w') as model_file:
+    #     model_file.write(saved_model)
+    # print('Model saved to disk')
+
+    # model.load_weights('models/baseline_weights.h5')
+
+
+
+    
+
+    # text = "tres jolie photo"
+    # X_pred = prepare_input(text)
+    # prediction = model.predict(X_pred)
+    # inverse_prediction = y.iloc[np.argmax(prediction)]
+
+    # for i in range(len(inverse_prediction)):
+    #     if inverse_prediction[i] == 1 :
+    #         emoji = inverse_prediction.index[i]
+
+    # print('première méthode')
+    # print(emoji)
+
+    
+    # emoji_index = np.argmax(prediction) 
+    # predicted_emoji = tweet_dataframe['emoji'][emoji_index]
+    # print('deuxième méthode')
+    # print(predicted_emoji)
