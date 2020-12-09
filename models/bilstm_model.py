@@ -66,8 +66,8 @@ def build_model(max_words, embedding_dimension, max_sequence,
     # Define model architecture 
     model = Sequential()
     model.add(Embedding(max_words, embedding_dimension, input_length=max_sequence))
-    model.add(LSTM(32, recurrent_dropout=0.2, return_sequences=True))
-    model.add(LSTM(32, recurrent_dropout=0.2))
+    model.add(Bidirectional(LSTM(32, recurrent_dropout=0.2, return_sequences=True)))
+    model.add(Bidirectional(LSTM(32, recurrent_dropout=0.2)))
     model.add(Dense(27, activation='relu'))
     model.add(Dense(25, activation='softmax'))
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['acc'])
@@ -76,9 +76,6 @@ def build_model(max_words, embedding_dimension, max_sequence,
     # They are not updated to avoid messing with what is already learnt
     # model.layers[0].set_weights([embedding_matrix])
     # model.layers[0].trainable = False 
-
-    model.compile(optimizer='rmsprop', loss='categorical_crossentropy', 
-                metrics=['acc'])
 
     return model
 
