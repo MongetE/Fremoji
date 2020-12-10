@@ -11,124 +11,34 @@ from keras.preprocessing.sequence import pad_sequences
 from sklearn.model_selection import train_test_split
 
 
-def load_data(datapath): 
-    data_frame = pd.read_csv(datapath, 
-                            dtype={'tweet': 'object', 'emoji': 'object'}, 
-                            encoding='utf-8', 
-                            sep=',')
-    data_frame.drop_duplicates().dropna(how='any')
+MAX_NB_WORDS = 50000
+MAXLEN = 25
+EMBEDDING_DIM = 250
 
-    return data_frame
+if __name__ == "__main__":
+    emoji_df = pd.read_csv("data/data.csv", sep=",", 
+                        dtype={"tweet": "object", "emoji": "object"}, 
+                        encoding="utf-8")
+    emoji_df.drop_duplicates().dropna(how = 'any')
 
-def prepare_input_output_data(tokenizer, dataframe, max_words, len_sequence):
-    label_tokenizer = Tokenizer()
-    X = tokenizer.texts_to_sequences(dataframe['tweet'])
-    X = pad_sequences(X, maxlen=MAX_SEQUENCE_LENGTH)
-    
-    y = pd.get_dummies(dataframe['emoji'])
-
-    print('Shape of data tensor:', X.shape)
-    print('Shape of label tensor:', y.shape)    
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, 
-                                                        random_state=42)
-
-    return X, y, X_train, X_test, y_train, y_test
-
-
-def get_word_embedding(embedding_path, tokens, max_words, embedding_dimension):
-    embedding_index = {}
-
-    with open(embedding_path, 'r', encoding='utf-8') as embedding_file: 
-        for line in embedding_file: 
-            values = line.split()
-            word = values[0]
-            vectors = np.asarray(values[1:], dtype='float32')
-            embedding_index[word] = vectors
-
-    # Can be replaced with Tokenizer.word_index
-    tokens = list(set(tokens))
-    tokens_index = {tokens[i]: i for i in range(len(tokens))}
-
-    embedding_matrix = np.zeros((max_words, embedding_dimension))
-    for token, i in tokens_index.items(): 
-        try: 
-            embedding_vector = embedding_index.get(token)
-            if i < max_words:
-                if embedding_vector is not None: 
-                    embedding_matrix[i] = embedding_vector
-        except KeyError: 
-            continue
-
-    return embedding_matrix
-
-
-def prepare_input(text): 
-    tokenizer = Tokenizer()
-    tokenizer.fit_on_texts(text)
-    X_pred = tokenizer.texts_to_sequences(text)
-    X_pred = pad_sequences(X_pred, maxlen=50)
-
-    return X_pred
-
-
-def build_model(max_words, embedding_dimension, max_sequence, 
-                embedding_matrix=None):
-    # Define model architecture 
+    tweets = [str(tweet) for tweet in emoji_df['tweet']]
+    tokenizer = Tokenizer(num_words=10000, 
+                        filters='!"#$%&()*+,-./:;<=>?@[\\]^\'_`{|}~\t\n')
+    tokenizer.fit_on_texts(tweets)
+    X = tokenizer.texts_to_sequences(tweets)
+    X = pad_sequences(X, maxlen=MAXLEN)
+    y = pd.get_dummies(emoji_df.emoji.values)
+    X_train, X_test, y_train, y_test = train_test_split(X,y, 
+                                                        test_size = 0.20, 
+                                                        random_state = 42)
     model = Sequential()
-    model.add(Embedding(max_words, embedding_dimension, input_length=max_sequence))
+    model.add(Embedding(MAX_NB_WORDS, EMBEDDING_DIM, input_length=MAXLEN))
     model.add(Flatten())
     model.add(Dense(16, activation='relu'))
     model.add(Dense(25, activation='sigmoid'))
-
-    # Add word embedding to Embedding layers
-    # They are not updated to avoid messing with what is already learnt
-    # model.layers[0].set_weights([embedding_matrix])
-    # model.layers[0].trainable = False
-
-    model.compile(optimizer='rmsprop', loss='sparse_categorical_crossentropy', 
-                metrics=['acc'])
-
-    return model
-
-if __name__ == "__main__":
-    tweet_dataframe = load_data('data/processed.csv')
-    embedding_path = 'embeddings/ft_cc.fr.300.vec'
-
-    # Can be replaced with Tokenizer.word_index to get nb unique tokens
-    tweets_concatenated = ""
-    for row in tweet_dataframe['tweet']:
-        tweets_concatenated += row + ' '
-    tokens = nltk.word_tokenize(tweets_concatenated)
-
-    MAX_NB_WORDS = round(len(set(tokens))/2)
-    # Tweet can't be much longer than 50 tokens
-    MAX_SEQUENCE_LENGTH = 50
-    EMBEDDING_DIMENSION = 300
-
-    tokenizer = Tokenizer(num_words=MAX_NB_WORDS)
-    tokenizer.fit_on_texts(tweets_concatenated)
-
-    X, y, X_train, X_test, y_train, y_test = prepare_input_output_data(tokenizer, 
-                                                                tweet_dataframe, 
-                                                                MAX_NB_WORDS, 
-                                                                MAX_SEQUENCE_LENGTH)
-    print("Data is ready")
-
-    # Pre-trained word embedding only slow the model and do not bring 
-    # significative gain 
-
-    # print("Building embedding matrix, this might take a while")
-    # start = time.time()
-    # embedding_matrix = get_word_embedding(embedding_path, tokens, 
-    #                                       MAX_NB_WORDS, EMBEDDING_DIMENSION)
-    # end = time.time() - start
-    # print(f"Embedding matrix is built (task completed in {end:.2f}s)")
-
-    model = build_model(MAX_NB_WORDS, EMBEDDING_DIMENSION, 
-                        MAX_SEQUENCE_LENGTH)
-    print("Model is ready to be trained")
-
+    model.compile(optimizer='rmsprop', loss='categorical_crossentropy', 
+                    metrics=['acc'])
+    
     # Uncomment to evaluate
     # history = model.fit(X_train, y_train, epochs=5, batch_size=64, 
     #           validation_data=(X_test, y_test))
@@ -155,36 +65,11 @@ if __name__ == "__main__":
 
     # plt.show()
 
-    # model.fit(X, y, epochs=3, batch_size=64)
-
-    # saved_model = model.to_json()
-    # model.save_weights('models/baseline_weights.h5')
-    # print('Weights saved to disk')
-
-    # with open('models/baseline_model.json', 'w') as model_file:
-    #     model_file.write(saved_model)
-    # print('Model saved to disk')
-
-    # model.load_weights('models/baseline_weights.h5')
+    saved_model = model.fit(X, y, epochs=2, batch_size=64)
 
 
+    with open('models/baseline_model.json', 'w') as model_file:
+        json.dump(saved_model, model_file)
+    print('Model saved to disk')
 
     
-
-    # text = "tres jolie photo"
-    # X_pred = prepare_input(text)
-    # prediction = model.predict(X_pred)
-    # inverse_prediction = y.iloc[np.argmax(prediction)]
-
-    # for i in range(len(inverse_prediction)):
-    #     if inverse_prediction[i] == 1 :
-    #         emoji = inverse_prediction.index[i]
-
-    # print('première méthode')
-    # print(emoji)
-
-    
-    # emoji_index = np.argmax(prediction) 
-    # predicted_emoji = tweet_dataframe['emoji'][emoji_index]
-    # print('deuxième méthode')
-    # print(predicted_emoji)
