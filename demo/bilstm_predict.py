@@ -62,7 +62,7 @@ def rerun(choice):
 
 if __name__ == "__main__":
     emoji_dataframe = load_data('data/data.csv')
-    model = load_model('models/baseline_model.json', 'models/baseline_weights.h5')
+    model = load_model('models/bilstm_model.json', 'models/bilstm_weights.h5')
     tokenizer = Tokenizer(num_words=10000, 
                         filters='!"#$%&()*+,-./:;<=>?@[\\]^\'_`{|}~\t\n')
     tokenizer.fit_on_texts(emoji_dataframe['tweet'])    
