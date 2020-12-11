@@ -45,8 +45,6 @@ if __name__ == "__main__":
     model.add(Dense(25, activation='softmax'))
     model.compile(loss='categorical_crossentropy', optimizer='adam', 
                   metrics=['acc'])
-    model.compile(loss='categorical_crossentropy', optimizer='adam', 
-                  metrics=['accuracy'])
 
         ## Uncomment below to train
     # history = model.fit(X_train, y_train, epochs=3, 
