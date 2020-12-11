@@ -12,7 +12,7 @@ def init_constant_var():
                         filters='!"#$%&()*+,-./:;<=>?@[\\]^\'_`{|}~\t\n')
     tokenizer.fit_on_texts(emoji_dataframe['tweet'])
 
-    with open('demo/streamlit_examples.txt', 'r', encoding='utf-8') as txt_file:
+    with open('data/streamlit_examples.txt', 'r', encoding='utf-8') as txt_file:
         examples = tuple(txt_file.readlines())
 
     return baseline, bilstm, emoji_dataframe, tokenizer, examples
