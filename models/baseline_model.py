@@ -39,7 +39,7 @@ if __name__ == "__main__":
     model.compile(optimizer='rmsprop', loss='categorical_crossentropy', 
                     metrics=['acc'])
     
-    # Uncomment to evaluate
+        # Uncomment to train
     # history = model.fit(X_train, y_train, epochs=5, batch_size=64, 
     #           validation_data=(X_test, y_test))
     
@@ -65,11 +65,18 @@ if __name__ == "__main__":
 
     # plt.show()
 
-    saved_model = model.fit(X, y, epochs=2, batch_size=64)
+    # saved_model = model.fit(X, y, epochs=2, batch_size=64)
 
 
-    with open('models/baseline_model.json', 'w') as model_file:
-        json.dump(saved_model, model_file)
-    print('Model saved to disk')
+    # saved_model = model.to_json()
+    # model.save_weights('models/baseline_weights.h5')
+    # print('Weights saved to disk')
 
+    # with open('models/baseline_model.json', 'w') as model_file:
+    #     json.dump(saved_model, model_file)
+    # print('Model saved to disk')
+
+        # Uncomment to evaluate
+    # model.load_weights('models/baseline_weights.h5')
+    # model.evaluate(X,y)
     
