@@ -1,10 +1,11 @@
 # Fremoji
 
-*Disclaimer*  
+## *Disclaimer*
+
 This project was a mentored project, led in collaboration with 3 other sutdents.
-Out of respect for their work, only my work is disclosed in this repository. As
-a result, I do not make the corpus publicly available, since I was not in charge
-of its gathering.
+Out of respect for their work, only my share of the work is disclosed in this
+repository. As a result, I do not make the corpus publicly available, since I
+was not in charge of its gathering.
 
 ## Context
 
@@ -24,6 +25,7 @@ Thus, the goal of our project was to try and provide a model to do so.
 Althought the models can't be trained or evaluated without the corpus,
 prediction can be made through command line thanks to demo/*_predict.py.
 
+- python 3.8.5
 - streamlit==0.72.0
 - tensorflow==2.3.1
 - nltk==3.5
