@@ -68,12 +68,15 @@ if __name__ == "__main__":
 
     # plt.show()
 
-    model.fit(X, y, epochs=3, batch_size=64)
+    # model.fit(X, y, epochs=3, batch_size=64)
 
-    saved_model = model.to_json()
-    model.save_weights('models/bilstm_weights.h5')
-    print('Weights saved to disk')
+    # saved_model = model.to_json()
+    # model.save_weights('models/bilstm_weights.h5')
+    # print('Weights saved to disk')
 
-    with open('models/bilstm_model.json', 'w') as model_file:
-        json.dump(saved_model, model_file)
-    print('Model saved to disk')
+    # with open('models/bilstm_model.json', 'w') as model_file:
+    #     json.dump(saved_model, model_file)
+    # print('Model saved to disk')
+
+    # model.load_weights('models/bilstm_weights.h5')
+    # model.evaluate(X,y)
