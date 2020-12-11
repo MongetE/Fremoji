@@ -1,4 +1,4 @@
 venv
 embeddings
-data
+data/*.csv
 demo/__*
