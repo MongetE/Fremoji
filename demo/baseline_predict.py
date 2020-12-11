@@ -1,6 +1,6 @@
 import json
+import pickle
 import sys
-import _thread
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -10,20 +10,10 @@ from keras.preprocessing.sequence import pad_sequences
 
 
 def load_data(datapath): 
-    data_frame = pd.read_csv(datapath, 
-                            dtype={'tweet': 'object', 'emoji': 'object'}, 
-                            encoding='utf-8', 
-                            sep=',')
-    data_frame.drop_duplicates().dropna(how='any')
-
-    tweets = [str(tweet) for tweet in data_frame['tweet']]
-    emojis = [emoji for emoji in data_frame['emoji']]
-
-    data = {'tweet': tweets, 'emoji': emojis}
-    data_frame = pd.DataFrame(data=data, dtype='object')
-
-    return data_frame
-
+    with open(datapath, 'r', encoding='utf-8') as jsonfile:
+        emojis = json.load(jsonfile)
+    
+    return emojis
 
 def load_model(model_path, weights_path):
     with open(model_path, 'r') as model_file:
@@ -41,33 +31,38 @@ def prepare_input(text, tokenizer):
 
     return X_pred
 
-def run(text, model, tokenizer, dataframe): 
+def run(text, model, tokenizer, emojis): 
     X_pred = prepare_input(text, tokenizer)
     prediction = model.predict(X_pred)
     emoji_index = np.argmax(prediction) 
-    predicted_emoji = dataframe['emoji'][emoji_index]
-
+    print(emoji_index)
+    for emoji, emoji_indices in emojis.items():
+        if emoji_index in emoji_indices:
+            predicted_emoji = emoji
+    
     return predicted_emoji
 
 
 def rerun(choice): 
     while choice == 'oui': 
         text = input('Votre texte : ')
-        emoji = run(text, model, tokenizer, emoji_dataframe)
+        emoji = run(text, model, tokenizer, emojis)
         print('The associated emoji is ', emoji)
-        choice = input('Réeesayer ? ')
+        choice = input('Réeesayer ? (oui|non)')
         rerun(choice)
     print('bye bye')
     sys.exit(0)
 
 if __name__ == "__main__":
-    emoji_dataframe = load_data('data/data.csv')
+    emojis = load_data('data/emojis.json')
+
+    with open('models/tokenizer.pickle', 'rb') as picklefile:
+        tokenizer = pickle.load(picklefile)
     model = load_model('models/baseline_model.json', 'models/baseline_weights.h5')
-    tokenizer = Tokenizer(num_words=10000, 
-                        filters='!"#$%&()*+,-./:;<=>?@[\\]^\'_`{|}~\t\n')
-    tokenizer.fit_on_texts(emoji_dataframe['tweet'])    
+   
     text = input('Votre texte : ')
-    emoji = run(text, model, tokenizer, emoji_dataframe)
+    tokenizer.fit_on_texts(text)    
+    emoji = run(text, model, tokenizer, emojis)
     print('The associated emoji is ', emoji)
-    choice = input('Réeesayer ? ')
+    choice = input('Réeesayer ? (oui|non) ')
     rerun(choice)
