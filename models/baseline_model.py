@@ -4,15 +4,16 @@ import nltk
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import tensorflow as tf
 from keras.models import Sequential
-from keras.layers import Dense, Embedding, Flatten
+from keras.layers import Dense, Embedding, Flatten, Input
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from sklearn.model_selection import train_test_split
 
 
 MAX_NB_WORDS = 50000
-MAXLEN = 25
+MAXLEN = 50
 EMBEDDING_DIM = 250
 
 if __name__ == "__main__":
@@ -32,6 +33,7 @@ if __name__ == "__main__":
                                                         test_size = 0.20, 
                                                         random_state = 42)
     model = Sequential()
+    model.add(Input(shape=[50], dtype=tf.int64, ragged=True))
     model.add(Embedding(MAX_NB_WORDS, EMBEDDING_DIM, input_length=MAXLEN))
     model.add(Flatten())
     model.add(Dense(16, activation='relu'))
@@ -39,7 +41,7 @@ if __name__ == "__main__":
     model.compile(optimizer='rmsprop', loss='categorical_crossentropy', 
                     metrics=['acc'])
     
-        # Uncomment to train
+        ## Uncomment to train
     # history = model.fit(X_train, y_train, epochs=5, batch_size=64, 
     #           validation_data=(X_test, y_test))
     
@@ -65,9 +67,8 @@ if __name__ == "__main__":
 
     # plt.show()
 
+        ## Uncomment to train and save
     # saved_model = model.fit(X, y, epochs=2, batch_size=64)
-
-
     # saved_model = model.to_json()
     # model.save_weights('models/baseline_weights.h5')
     # print('Weights saved to disk')
@@ -76,7 +77,7 @@ if __name__ == "__main__":
     #     json.dump(saved_model, model_file)
     # print('Model saved to disk')
 
-        # Uncomment to evaluate
-    # model.load_weights('models/baseline_weights.h5')
-    # model.evaluate(X,y)
+        ## Uncomment to evaluate
+    model.load_weights('models/baseline_weights.h5')
+    model.evaluate(X,y)
     
