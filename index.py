@@ -1,21 +1,23 @@
+import pickle
 import streamlit as st 
 from keras.preprocessing.text import Tokenizer
 from demo import baseline_predict as bsp
 
 def init_constant_var():
+    emojis = bsp.load_data('data/emojis.json')
+
+    with open('models/tokenizer.pickle', 'rb') as picklefile:
+        tokenizer = pickle.load(picklefile)
+
     baseline = bsp.load_model('models/baseline_model.json', 
                               'models/baseline_weights.h5')
     bilstm = bsp.load_model('models/bilstm_model.json', 
                             'models/bilstm_weights.h5')
-    emoji_dataframe = bsp.load_data('data/data.csv')
-    tokenizer = Tokenizer(num_words=10000, 
-                        filters='!"#$%&()*+,-./:;<=>?@[\\]^\'_`{|}~\t\n')
-    tokenizer.fit_on_texts(emoji_dataframe['tweet'])
 
     with open('data/streamlit_examples.txt', 'r', encoding='utf-8') as txt_file:
         examples = tuple(txt_file.readlines())
 
-    return baseline, bilstm, emoji_dataframe, tokenizer, examples
+    return baseline, bilstm, emojis, tokenizer, examples
 
 
 def sidebar():
@@ -59,19 +61,19 @@ def body():
         model = bilstm
 
     if len(text_input) > 1:
-        emoji = bsp.run(text_input, model, tokenizer, emoji_dataframe)
+        emoji = bsp.run(text_input, model, tokenizer, emojis)
         emoji_string = f"{text_input} {emoji}."
         st.markdown('## Your tweet')
         st.write(emoji_string)
     elif len(example) > 1:
-        emoji = bsp.run(text=example, model=model, tokenizer=tokenizer, dataframe=emoji_dataframe)
+        emoji = bsp.run(example, model, tokenizer, emojis)
         emoji_string = f"{example} {emoji}."
         st.markdown('## Your tweet')
         st.write(emoji_string)
         
 
 if __name__ == "__main__":
-    baseline, bilstm, emoji_dataframe, tokenizer, examples = init_constant_var()
+    baseline, bilstm, emojis, tokenizer, examples = init_constant_var()
     sidebar()
     body()
     

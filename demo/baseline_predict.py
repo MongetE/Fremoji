@@ -35,7 +35,6 @@ def run(text, model, tokenizer, emojis):
     X_pred = prepare_input(text, tokenizer)
     prediction = model.predict(X_pred)
     emoji_index = np.argmax(prediction) 
-    print(emoji_index)
     for emoji, emoji_indices in emojis.items():
         if emoji_index in emoji_indices:
             predicted_emoji = emoji
