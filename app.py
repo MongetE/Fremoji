@@ -1,6 +1,8 @@
 import pickle
+import numpy as np
 import streamlit as st 
 from keras.preprocessing.text import Tokenizer
+from keras.preprocessing.sequence import pad_sequences
 from demo import baseline_predict as bsp
 
 def init_constant_var():
@@ -48,7 +50,7 @@ def body():
     st.write('Predict emojis in French tweets! ')
     st.markdown('_It takes a few seconds to output an emoji. Further\
                 information in the sidebar !_')
-    model_to_used = st.selectbox('Select a model', ('Baseline', 'BiLSTM'))
+    model_to_used = st.selectbox('Select a model', ('Baseline', 'BiLSTM', 'test'))
     st.write('Enter some text, hit enter and wait for the surprise ! 😮')
     text_input = st.text_input('Your tweet: ')
     st.write('or')
@@ -70,10 +72,9 @@ def body():
         emoji_string = f"{example} {emoji}."
         st.markdown('## Your tweet')
         st.write(emoji_string)
-        
 
 if __name__ == "__main__":
-    baseline, bilstm, emojis, tokenizer, examples = init_constant_var()
+    baseline, bilstm, emojis,  tokenizer, examples = init_constant_var()
     sidebar()
     body()
     
