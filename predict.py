@@ -35,7 +35,8 @@ def run_prediction(model, X, index, reverse_labels):
     for emoji, emoji_indices in index.items():
         if prediction in emoji_indices:
             predicted_emoji = reverse_labels[emoji]
-    print(predicted_emoji)
+    
+    return predicted_emoji
 
 
 @click.command()
@@ -53,8 +54,8 @@ def run(tokenizer, reverse_index, index, model):
                                                   index)
     model = load_model(model)
     X_pred = prepare_input_data(text, tokenizer, 50)
-    run_prediction(model=model, X=X_pred, index=index, reverse_labels=reverse_labels)
-
+    emoji = run_prediction(model=model, X=X_pred, index=index, reverse_labels=reverse_labels)
+    print(f'{text} {emoji}')
 
 if __name__ == "__main__":
     run()
