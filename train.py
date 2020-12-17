@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+from random import sample
 from keras.models import Sequential
 from keras.layers import Bidirectional, Dense, Embedding, Flatten,\
                          Input, LSTM, SpatialDropout1D
@@ -81,7 +82,8 @@ def prepare_input_data(dataframe, save, maxlen=50, max_words=10000, model_name=N
     """
     tokenizer = Tokenizer(num_words=max_words, 
                         filters='!"#$%&()*+,-./:;<=>?@[\\]^\'_`{|}~\t\n')
-    tokenizer.fit_on_texts(dataframe['tweets'])  
+    tokenizer.fit_on_texts(dataframe['tweets'])
+    dataframe = dataframe.sample(frac=1).reset_index(drop=True)  
     X = tokenizer.texts_to_sequences(dataframe['tweets'])
     X = pad_sequences(X, maxlen=maxlen)
     y = pd.get_dummies(dataframe['emojis'])
@@ -187,18 +189,21 @@ def build_training_plot(history):
     plt.show()
 
 
-def train(X, y, model_name, maxlen, max_words, embedding_dim, epochs, 
+def train(dataframe, model_name, maxlen, max_words, embedding_dim, epochs, 
           batch_size, kfold, save, class_weights=None):
     accuracies = []
     if not save:
-        for i in range(0, kfold):
+        for i in range(0, kfold): 
             if model_name == 'baseline':
                 model = build_baseline_model(maxlen=maxlen, max_words=max_words, 
                                             embedding_dimension=embedding_dim)
             else:
                 model = build_bilstm_model(maxlen=maxlen, max_words=max_words, 
                                         embedding_dimension=embedding_dim)
-            
+
+            X,y = prepare_input_data(dataframe=dataframe, maxlen=maxlen, save=save, 
+                                     model_name=model)    
+
             if i == 0:
                 model.summary()
 
@@ -215,6 +220,8 @@ def train(X, y, model_name, maxlen, max_words, embedding_dim, epochs,
         accuracies = np.asarray(accuracies)
         print(f'Training accuracy: {accuracies.mean()*100:.2f}% (+/- {accuracies.std()*2:.3f})')
         build_training_plot(history)
+
+        model.evaluate(X,y)
 
     else: 
         if model_name == 'baseline':
@@ -257,17 +264,15 @@ def run(data_path, model, maxlen, embedding_dim, max_words, epochs, batch_size,
     if save: 
         with open(f'models_utils/reverse_labels_{model}.json', 'w', encoding='utf-8') as jsonfile:
             json.dump(reverse_labels, jsonfile, ensure_ascii=False)
-    X,y = prepare_input_data(dataframe=dataframe, maxlen=maxlen, save=save, 
-                             model_name=model)
 
     if balanced:
         class_weights = balance_weights(y)
-        train(X, y, model_name=model, maxlen=maxlen, max_words=max_words, 
-              embedding_dim=embedding_dim, epochs=epochs, kfold=kfold, 
+        train(dataframe=dataframe, model_name=model, maxlen=maxlen, kfold=kfold,
+              embedding_dim=embedding_dim, epochs=epochs, max_words=max_words, 
               class_weights=class_weights, batch_size=batch_size, save=save)
     else:
-        train(X, y, model_name=model, maxlen=maxlen, max_words=max_words, 
-              embedding_dim=embedding_dim, epochs=epochs, kfold=kfold,
+        train(dataframe=dataframe, model_name=model, maxlen=maxlen, kfold=kfold,
+              embedding_dim=embedding_dim, epochs=epochs, max_words=max_words, 
               batch_size=batch_size, save=save)
 
 
