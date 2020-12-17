@@ -45,7 +45,7 @@ def sidebar():
     st.sidebar.markdown('Barbieri, F., Ballesteros, M., & Saggion, H. (2017). \
                         Are emojis predictable?. arXiv preprint arXiv:1702.07285.')
     st.sidebar.markdown('# See also')
-    st.sidebar.markdown('[Fremoji github repo]')
+    st.sidebar.markdown('[Fremoji github repo](https://github.com/MongetE/Fremoji)')
 
 
 def show_prediction(model, tokenizer, reverse_labels, index, text, session):
