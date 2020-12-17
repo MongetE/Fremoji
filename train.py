@@ -88,7 +88,7 @@ def prepare_input_data(dataframe, save, maxlen=50, max_words=10000, model_name=N
 
     if save: 
         saved_tokenizer = tokenizer.to_json()
-        with open(f'utils/{model_name}_tokenizer.json', 'w', encoding='utf-8') as jsonfile:
+        with open(f'models_utils/{model_name}_tokenizer.json', 'w', encoding='utf-8') as jsonfile:
             json.dump(saved_tokenizer, jsonfile, ensure_ascii=False)
         
         emojis = [emoji for emoji in dataframe['emojis']]
@@ -99,7 +99,7 @@ def prepare_input_data(dataframe, save, maxlen=50, max_words=10000, model_name=N
             else:
                 emojis_indices[emojis[i]] = [i]
         
-        with open(f'utils/{model_name}_emojis_indices.json', 'w') as jsonfile:
+        with open(f'models_utils/{model_name}_emojis_indices.json', 'w') as jsonfile:
             json.dump(emojis_indices, jsonfile)
 
     return X, y
@@ -255,7 +255,7 @@ def run(data_path, model, maxlen, embedding_dim, max_words, epochs, batch_size,
     dataframe = load_training_data(data_path)
     dataframe, reverse_labels = correct_datatype(dataframe)
     if save: 
-        with open(f'utils/reverse_labels_{model}.json', 'w', encoding='utf-8') as jsonfile:
+        with open(f'models_utils/reverse_labels_{model}.json', 'w', encoding='utf-8') as jsonfile:
             json.dump(reverse_labels, jsonfile, ensure_ascii=False)
     X,y = prepare_input_data(dataframe=dataframe, maxlen=maxlen, save=save, 
                              model_name=model)
