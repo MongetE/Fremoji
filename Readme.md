@@ -20,6 +20,8 @@ repo achieve an accuracy of 33% for the baseline (a simple neural network) and
 To the best of our knowledge, in January 2020, no attempt had been made for French.
 Thus, the goal of our project was to try and provide a model to do so.
 
+Predicting emojis is a rather challenging task, since people use emojis very differently: Barbieri et al. (2017) state that the way emojis are used, or even the most used emojis, varies from one language to another, and variations also occurs within a linguistic area. As such, any predicted emoji for a given tweet could actually be used by someone, making the evaluation process rather dubious.
+
 ### Supported emojis
 
 We were asked to include the 25 most frequent emojis in our corpus as part of
@@ -54,7 +56,8 @@ emojis.
 
 - Build the image running `docker build -t fremoji-image .`
 - Run the container with `docker run --name fremoji -d -p 8501:8501 fremoji-image`
-- Visit `localhost:8501`
+- Visit `localhost:8501` or the Network URL link displayed in your terminal
+window
 - When you're done with the app, run `docker stop fremoji` to stop the container
 
 #### **Inside your virtual environment**
@@ -70,6 +73,8 @@ To switch to the bilstm model, run `predict.py --model models/bilstm.h5
 --index models_utils/bilstm_emojis_indices.json`
 
 ## References
+
+Barbieri, F., Ballesteros, M., & Saggion, H. (2017). Are emojis predictable?. [arXiv preprint arXiv:1702.07285](https://arxiv.org/abs/1702.07285).
 
 Eisner, B., Rocktäschel, T., Augenstein, I., Bošnjak, M., & Riedel, S. (2016).
 emoji2vec: Learning emoji representations from their description.
