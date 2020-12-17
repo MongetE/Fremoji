@@ -1,6 +1,6 @@
 venv
 embeddings
 data/*.csv
-demo/__*
 .vscode
 shuffle_data.py
+__*
