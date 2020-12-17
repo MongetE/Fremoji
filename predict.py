@@ -41,11 +41,11 @@ def run_prediction(model, X, index, reverse_labels):
 
 @click.command()
 @click.option('--tokenizer', help="Path to tokenizer json", 
-              default='utils/baseline_tokenizer.json')
+              default='models_utils/baseline_tokenizer.json')
 @click.option('--reverse_index', help="Path to the reverse index json", 
-              default='utils/reverse_labels_baseline.json')
+              default='models_utils/reverse_labels_baseline.json')
 @click.option('--index', help='Path to the index json', 
-              default='utils/baseline_emojis_indices.json')
+              default='models_utils/baseline_emojis_indices.json')
 @click.option('--model', help="Path to the model h5", 
               default='models/baseline.h5')
 def run(tokenizer, reverse_index, index, model):
