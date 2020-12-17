@@ -11,16 +11,15 @@ cannot be run without a csv file [tweet, emoji].**
 ## Context
 
 Predicting emojis was a shared task of the SemEval 2018, for Spanish and English.
-Emojis can provide useful insights i,to a user's feeling and their contribution
+Emojis can provide useful insights into a user's feeling and their contribution
 to sentiment analysis is studied by Felbo et al (2017) or Eisner et al. (2016),
-to name of few. Results of the models produced during the SemEval 2018 shared
-task achieved an accuracy oscillated between 30 and 40%. The two models in this
-repo achieve an accuracy of 33% for the baseline (a simple neural network) and
-34% for the biLSTM model.  
+to name a few. Results of the models produced during the SemEval 2018 shared
+task achieved an accuracy oscillating between 30 and 40%. Barbieri et al's (2017) model achieved a F1-score of 0.65, but their model only classifies 5 emojis.  
+The two models in this repo achieve an accuracy of 33% for the baseline (a simple neural network) and 34% for the biLSTM model.  
 To the best of our knowledge, in January 2020, no attempt had been made for French.
 Thus, the goal of our project was to try and provide a model to do so.
 
-Predicting emojis is a rather challenging task, since people use emojis very differently: Barbieri et al. (2017) state that the way emojis are used, or even the most used emojis, varies from one language to another, and variations also occurs within a linguistic area. As such, any predicted emoji for a given tweet could actually be used by someone, making the evaluation process rather dubious.
+Predicting emojis is a rather challenging task, since people use emojis very differently: Barbieri et al. (2017) state that the way emojis are used, or even the most used emojis, varies from one language to another, and variations also occur within a linguistic area. As such, any predicted emoji for a given tweet could actually be used by someone, making the evaluation process rather dubious.
 
 ### Supported emojis
 
@@ -32,8 +31,8 @@ the classification task (see below)
 ## Getting started
 
 Although the models can't be trained or evaluated without the corpus,
-prediction can be made through command line thanks to `predict.py` or via a
-streamlit app.
+predictions can be made through command line thanks to `predict.py` or via the
+streamlit app `app.py`.
 
 ### Requirements
 
@@ -49,8 +48,7 @@ streamlit app.
 
 ### Running predictions
 
-There are two ways to run the models in the streamlit to have fun predicting
-emojis.
+There are two ways to run prediction: in the streamlit app or with the cli.
 
 #### **With docker**
 
