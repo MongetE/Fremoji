@@ -13,7 +13,7 @@ def load_utils(tokenizer_path, labels_path, index_path):
 
     tokenizer = tokenizer_from_json(tokenizer_data)
     
-    with open(labels_path, 'r') as jsonfile:
+    with open(labels_path, 'r', encoding='utf-8') as jsonfile:
         reverse_labels = json.load(jsonfile)
 
     with open(index_path, 'r') as jsonfile:
