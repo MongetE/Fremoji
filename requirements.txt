@@ -1,4 +1,4 @@
-numpy==1.18.5
+numpy==1.22.0
 streamlit==0.72.0
 click==7.1.2
 tensorflow==2.3.1
